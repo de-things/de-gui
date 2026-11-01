@@ -1,28 +1,34 @@
 import fs from "fs";
 import crypto from "crypto";
+import path from "path";
 
 var config;
 
-export var public_dir = () => "./public";
+export var public_path = () => "./public";
+export var cert_path = () => "./.cert";
+export var address = () => config.address;
 export var port = () => config.port;
 export var db_path = () => config.db_path;
-export var secret = () => config.secret;
 export var request_max_bytes = () => config.request_max_bytes;
+export var secret = () => config.secret;
+export var cert_crt = () => config.cert_crt;
+export var cert_key = () => config.cert_key;
 
 export var credentials = () => {
     return {
-        key: fs.readFileSync(config.key_path),
-        cert: fs.readFileSync(config.crt_path),
+        cert: fs.readFileSync(path.join(cert_path(), cert_crt())),
+        key:  fs.readFileSync(path.join(cert_path(), cert_key())),
     }
 }
 
 const CONFIG_DEFAULTS = {
+    address: "0.0.0.0",
     port: 1984,
-    db_path: "",
+    db_path: "./.cluster",
     request_max_bytes: 102400,
     secret: crypto.randomBytes(16).toString("hex"),
-    key_path: "./cert/server.key",
-    crt_path: "./cert/server.crt"
+    cert_crt: "server.crt",
+    cert_key: "server.key",
 }
 
 /** initializes config data */
@@ -32,8 +38,7 @@ export function init() {
     // create config.json if does not exist
     if (!fs.existsSync("config.json")) {
         fs.writeFileSync("config.json", JSON.stringify(CONFIG_DEFAULTS, null, 2));
-        console.log("Created './config.json'. Please specify data base path in 'db_path', before running server again.");
-        process.exit();
+        console.log("Created './config.json' file.");
     }
 
     config = JSON.parse(fs.readFileSync("config.json", { encoding: "utf-8" }));

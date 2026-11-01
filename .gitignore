@@ -1,5 +1,6 @@
-cert/
 node_modules/
+.cert/
+.cluster/
 bin/
 package-lock.json
 config.json

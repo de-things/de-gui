@@ -1,5 +1,10 @@
 arch=$(uname -m)
 
+if ! test -f ".cert/trusted.crt" ; then
+    echo "Run the server in debug mode first using './start.sh' and finish setup."
+    exit 1
+fi
+
 echo "Building a standalone executable for $arch architecture."
 
 ./bundle.sh
@@ -15,5 +20,5 @@ rm server.tmp.js
 mv server bin/$arch/server
 
 cp -r public bin/$arch/public
-cp -r cert bin/$arch/cert
+cp -r .cert bin/$arch/.cert
 cp config.json bin/$arch/config.json

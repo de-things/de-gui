@@ -4,6 +4,7 @@ import path from "path";
 import crypto from "crypto";
 import * as SecurityMgr from "./src/server/SecurityMgr.js";
 import * as ConfigMgr from "./src/server/ConfigMgr.js";
+import * as CertMgr from "./src/server/CertMgr.js";
 
 const MIME_TYPES = {
     ".html" : "text/html",
@@ -14,6 +15,7 @@ const MIME_TYPES = {
 };
 
 ConfigMgr.init();
+CertMgr.init();
 
 // true if `value` is JSON object
 const isJsonObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -204,7 +206,7 @@ https.createServer(ConfigMgr.credentials(), (req, res) => {
 
     file_path = file_path.replaceAll("..", ""); // prevent from breaking file system
 
-    fs.readFile(path.join(ConfigMgr.public_dir(), file_path), (err, data) => {
+    fs.readFile(path.join(ConfigMgr.public_path(), file_path), (err, data) => {
         if (err) return writeNotFound(res);
 
         const MIMETYPE = MIME_TYPES[path.parse(file_path).ext];
