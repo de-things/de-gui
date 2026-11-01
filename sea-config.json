@@ -1,5 +1,5 @@
 {
-  "main": "server.tmp.js",
+  "main": "sea-server.js",
   "output": "server",
   "mainFormat": "module"
 }

@@ -1,0 +1,5 @@
+{
+  "main": "sea-server.cjs",
+  "output": "server",
+  "executable": "/usr/local/bin/node"
+}

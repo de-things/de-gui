@@ -1,6 +1,12 @@
+> [!IMPORTANT]
+> It's my first attempt in cross-compile/deploy stuff,
+> so I do not guarantee my toolchain stable work.
+> A guide I wrote below is based on experience I received
+> working on this project.
+
 ## Description
 
-This web GUI is designed to be deployed to routers, but you can pick any other supported platform. For example in Android you can use [termux](https://termux.dev/) to run server in the background and then access GUI layout via browser.
+This is web interface to manage de:things requests. It's primarly designed to be deployed to routers, but you can pick any other platform (it's a web application lol). For example in Android you can use [termux](https://termux.dev/) to run server in the background and then access GUI layout via browser.
 
 ## Running in debug mode (Linux/Android)
  
@@ -8,7 +14,7 @@ First of all you need to install [git](https://git-scm.com/), [nodejs](https://n
 
 The next step is to clone repo using (for termux use it's root directory to clone the repo there):
 
-```
+```sh
 git clone --recurse-submodules https://github.com/de-things/de-gui.git
 ```
 
@@ -42,15 +48,17 @@ Each tile in preset can be modified by holding it as well. Inproper values in ti
 
 Since this project relies on encrypted client<>server communication, HTTPS is **required**.
 
-By default server uses self-signed `server.*` key/crt pair located in `.cert/` directory, but if you plan to deploy this project into some serious environment you need to worry about getting better certificate solution. You can buy a domain and reverse-proxy traffic to it using `nginx` or `caddy`.
+By default server uses self-signed `server.*` key/crt pair located in `.cert/` directory, but if you plan to deploy this project into some serious environment you need to worry about getting better *trusted* certificate solution. You can rent a domain with SSL and reverse-proxy traffic to it using `nginx` or `caddy` (more info -> internet).
 
-In my case, I deploy this project in my local network, so default server certificate is fine enough.
+In my case, I deploy this project over my local network, so default server certificate is fine enough.
 
-If you plan to use default certificate you need to make it *trusted*. That means you need to install it on a destination device you plan to use to connect to the server. For such problem `.cert/` directory contains `trusted.crt` which is the one you need to install on your device to trust server's public IP.
+Well, if you plan to use default `server.*` certificate you need to make it *trusted*. That means you need to install it on a destination device you plan to use to connect to the server. For such problem `.cert/` directory contains `trusted.crt` file which is the one you need to install on your device to trust server's public IP.
 
-But yea, don't use this method for serious deploys please.
+For example you start a server, clone `trusted.crt` to your Android device, go to Settings -> ... -> Install certificate, agree with a devil's contract and aha, you can connect to a server without warnings! (more info -> internet)
 
-## Deploying to a prefered environment (Router example)
+But yeah, don't use this method in serious deploys, please.
+
+## Deploying to a preferred environment (Router example)
 
 The best way to deploy the project is to build it into a standalone executable. It prevents destination device from owning dev packages like `nodejs`, `git` and etc. Just a server executable and few files to make it work.
 
@@ -58,7 +66,7 @@ I'll describe steps for deploying it into a router, but other platforms are the 
 
 First of all, check router's architecture and container's OS you plan to run this project on. For example, my MikroTik router operate on ARM64 architecture with Alpine Linux as a container environment.
 
-So in order to build this project for such router you need to find some *computer* with a described setup and then run this project there in a debug mode following steps above.
+So in order to build this project for such router you need to find some *computer* with a described setup and then run this project there in debug mode following steps above.
 
 After setting things up and successful start, you can build the project on a *computer* running:
 
@@ -66,15 +74,25 @@ After setting things up and successful start, you can build the project on a *co
 ./build.sh
 ```
 
-This script bundles javascript into a standalone executable using *node SEA* and clones everything server need to work with into a destination folder.
+This script bundles javascript into a standalone executable (SEA) and clones everything server need to work with into a destination folder.
 
-For setup above build files will be located at `bin/arm64`. All you need to do after is to clone this `bin/arm64` files to the router and run an executable inside:
+For setup above build files will be located at `bin/arm64`. All you need to do after is to clone those `bin/arm64` files to the router and run an executable inside:
 
 ```sh
 ./server
 ```
 
 It should work the same way as in dev environment when you start a server using `./start.sh` script.
+
+If you don't have a *computer* with preferred environment, you can emulate architecture using 'podman' + 'qemu' toolchain.
+
+Install these packages on your machine first. Then you can run:
+
+```sh
+./build.podman.sh arm64 # for ARM64 build
+```
+
+It should build the same way as `build.sh`, but this time you can specify a desired architecture for a SEA.
 
 ## Overview
 
