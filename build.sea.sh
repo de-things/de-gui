@@ -6,7 +6,7 @@
 arch=$(uname -m)
 
 if ! test -f ".cert/trusted.crt" ; then
-    echo "Run the server in debug mode first using './start.sh' and finish setup."
+    echo "Run the server in debug mode first using './init.sh' and finish setup."
     exit 1
 fi
 

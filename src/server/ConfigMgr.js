@@ -6,9 +6,9 @@ var config;
 
 export var public_path = () => "./public";
 export var cert_path = () => "./.cert";
+export var db_path = () => "./.cluster";
 export var address = () => config.address;
 export var port = () => config.port;
-export var db_path = () => config.db_path;
 export var request_max_bytes = () => config.request_max_bytes;
 export var secret = () => config.secret;
 export var cert_crt = () => config.cert_crt;
@@ -24,7 +24,6 @@ export var credentials = () => {
 const CONFIG_DEFAULTS = {
     address: "0.0.0.0",
     port: 1984,
-    db_path: "./.cluster",
     request_max_bytes: 102400,
     secret: crypto.randomBytes(16).toString("hex"),
     cert_crt: "server.crt",
@@ -48,17 +47,10 @@ export function init() {
         process.exit(1);
     }
     
-    if (config.db_path == "") {
-        console.error("You need to specify 'db_path' in './config.json' to start a server.")
-        process.exit(1);
+    if (!fs.existsSync(db_path())) {
+        fs.mkdirSync(db_path());
+        console.log(`Created database path: ${db_path()}`);
     }
-    
-    if (!fs.existsSync(config.db_path)) {
-        fs.mkdirSync(config.db_path);
-        console.log(`Created database path: ${config.db_path}`);
-    }
-    
-    console.log(`Current database path: ${config.db_path}`);
 }
 
 export default {}

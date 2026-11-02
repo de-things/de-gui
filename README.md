@@ -6,13 +6,13 @@
 
 ## Description
 
-This is web interface to manage de:things requests. It's primarly designed to be deployed to routers, but you can pick any other platform (it's a web application lol). For example in Android you can use [termux](https://termux.dev/) to run server in the background and then access GUI layout via browser.
+This is web interface to manage de:things requests. It's primarly designed to be deployed to routers (a MikroTik router tbh), but you can pick any other platform. For example in Android you can use [termux](https://termux.dev/) to run a server in the background and then access it's GUI via browser.
 
 ## Running in debug mode (Linux/Android)
  
 First of all you need to install [git](https://git-scm.com/), [nodejs](https://nodejs.org/) and `openssl` cli tool.
 
-The next step is to clone repo using (for termux use it's root directory to clone the repo there):
+The next step is to clone repo using (for termux use it's `~/` directory and clone there):
 
 ```sh
 git clone --recurse-submodules https://github.com/de-things/de-gui.git
@@ -21,16 +21,16 @@ git clone --recurse-submodules https://github.com/de-things/de-gui.git
 Go to clonned directory and run:
 
 ```sh
-chmod +x ./start.sh && ./start.sh
+chmod +x ./init.sh && ./init.sh
 ```
 
 During "clean run" this script creates `config.json` and asks you to define public server IP address. It will be used to generate SSL certificate after you set it up.
 
-So define it and start the server again.
+So define it and init the server again.
 
 After the server is online, you can enter de-gui GUI (ha-ha).
 
-In entered GUI you need to gain server access to fetch cluster data created upon clean start. To do so, in web interface go to settings (gear button) and in `Access key` field specify secret value located in `config.json` under `secret` variable. That private key was randomly generated and wanted to be used as an encryption provider for further communication.
+In entered GUI you need to gain server access to fetch cluster data created upon a clean start. To do so, in web interface go to settings (gear button) and in `Access key` field specify secret value located in `config.json` under `secret` variable. That private key was randomly generated and wanted to be used as an encryption provider for further communication.
 
 After specifying an `Access key` press `Sync` button to apply changes. Web interface should fetch server data and if an `Access key` was fine server will respond with presets data. It will be empty if you're on just clean start though.
 
@@ -60,39 +60,49 @@ But yeah, don't use this method in serious deploys, please.
 
 ## Deploying to a preferred environment (Router example)
 
-The best way to deploy the project is to build it into a standalone executable. It prevents destination device from owning dev packages like `nodejs`, `git` and etc. Just a server executable and few files to make it work.
+Some scripts below require `podman` and `qemu` packages being installed on your machine to emulate build architectures. You don't need any of them on a destination device though.
 
-I'll describe steps for deploying it into a router, but other platforms are the same.
+So we do have several options:
 
-First of all, check router's architecture and container's OS you plan to run this project on. For example, my MikroTik router operate on ARM64 architecture with Alpine Linux as a container environment.
+### Build SEA (single executable application) build and run without dependencies
 
-So in order to build this project for such router you need to find some *computer* with a described setup and then run this project there in debug mode following steps above.
+* **+** Almost everything is included into the one executable file.
+* **-** Existence of `libatomic`, `glibc` or `musl` may become a hardly breakable wall for this deploy.
 
-After setting things up and successful start, you can build the project on a *computer* running:
-
-```sh
-./build.sh
-```
-
-This script bundles javascript into a standalone executable (SEA) and clones everything server need to work with into a destination folder.
-
-For setup above build files will be located at `bin/arm64`. All you need to do after is to clone those `bin/arm64` files to the router and run an executable inside:
+The idea of building this way is to run:
 
 ```sh
-./server
+ # if you build for your native architecture
+./build.sea.sh
 ```
 
-It should work the same way as in dev environment when you start a server using `./start.sh` script.
+or run:
 
-If you don't have a *computer* with preferred environment, you can emulate architecture using 'podman' + 'qemu' toolchain.
+``` sh
+# if you want to build for speciefic architecture you don't have
+# (replace 'some_arch' with an architecture of a destination device)
+./build.sea.podman.sh some_arch
+```
 
-Install these packages on your machine first. Then you can run:
+So this build option generates `bin/{arch}` directory with everything server need to run with. Just clone a created directory into your environment and try to run it. If it runs - sweet!
+
+### Create container image and run it via container environment
+
+* **+** It just works!
+* **-** Setting up a container is doomed and a size will be huge.
+
+Run:
 
 ```sh
-./build.podman.sh arm64 # for ARM64 build
+# replace 'some_arch' with an architecture of a destination device
+build.tar.podman.sh some_arch
 ```
 
-It should build the same way as `build.sh`, but this time you can specify a desired architecture for a SEA.
+This script generates single `de-gui.tar` file in `bin/{arch}` which is ready to be deployed into a container.
+
+I use this method for my MikroTik router, because it just works!
+
+For everyone interested in steps of deploying `de-gui` container into a MikroTik router (RouterOS) I wrote a [mikrotik-deploy](./mikrotik-deploy.rsc) document. Feel free to examine.
 
 ## Overview
 

@@ -11,7 +11,9 @@ const MIME_TYPES = {
     ".css"  : "text/css",
     ".js"   : "text/javascript",
     ".svg"  : "image/svg+xml",
-    ".woff2": "font/woff2"
+    ".woff2": "font/woff2",
+    ".webmanifest": "application/manifest+json",
+    ".png": "image/png"
 };
 
 ConfigMgr.init();

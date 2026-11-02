@@ -5,8 +5,8 @@
 
 if [[ -z "${1:-}" ]]; then
   echo "You need to specify build architecture to emulate." >&2
-  echo "Example: './build.podman.sh arm64'" >&2
-  echo "Also make sure 'qemu', 'qemu-user-static' and 'qemu-user-static-binfmt' are installed on your machine." >&2
+  echo "Example: './build.sea.podman.sh arm64'" >&2
+  echo "Also make sure 'qemu' is installed on your machine." >&2
   exit 1
 fi
 
@@ -47,8 +47,8 @@ cp config.json bin/$arch/config.json
 
 # YOU CAN TEST YOUR BUILD RUNNING THIS IN BUILD DIRECTORY:
 # podman run --rm --platform linux/arm64 \ # SPECIFY DESIRED ARCHITECTURE
-# -p 1984:1984 \ # SPECIFY DESIRED SERVER PORT
-# -v "$PWD:/work:Z" \
-# -w /work \
-# docker.io/library/node:25.5-bookworm \
-# ./server
+#   -p 1984:1984 \ # SPECIFY DESIRED SERVER PORT
+#   -v "$PWD:/work:Z" \
+#   -w /work \
+#   docker.io/library/node:25.5-bookworm \
+#   ./server

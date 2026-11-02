@@ -8,7 +8,9 @@ fi
 
 chmod +x ./bundle.sh
 chmod +x ./mkcert.sh
-chmod +x ./build.sh
+chmod +x ./build.sea.sh
+chmod +x ./build.sea.podman.sh
+chmod +x ./build.tar.podman.sh
 
 ./bundle.sh
 node server.js
