@@ -20,8 +20,6 @@ export class PresetsGUI {
         }
     }
 
-    // static isOverSelected = () => this.selected_element ? this.selected_element.matches(":hover") : false;
-
     static addPresetNode(preset_name, on_click) {
         const preset = document.createElement("div");
         preset.classList.add("basic_item", "tile_btn");

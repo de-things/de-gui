@@ -27,8 +27,6 @@ export class TilesGUI {
         }
     }
 
-    // static isOverSelected = () => this.selected_element ? this.selected_element.matches(":hover") : false;
-
     static hasPrevPage(page_number) {
         return page_number > 0;
     }

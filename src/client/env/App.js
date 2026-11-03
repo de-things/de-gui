@@ -103,26 +103,6 @@ export class App {
 
         QRGUI.init();
 
-        // function clearHoldEvents() {
-        //     if (!TilesGUI.isOverSelected()) {
-        //         clearTimeout(TilesGUI.tile_timeout_handler);
-    
-        //         setTimeout(() => {
-        //             TilesGUI.is_hold = false;
-        //         }, 10);
-        //     }
-        //     if (!PresetsGUI.isOverSelected()) {
-        //         clearTimeout(PresetsGUI.preset_timeout_handler);
-                
-        //         setTimeout(() => {
-        //             PresetsGUI.is_hold = false;
-        //         }, 10);
-        //     }
-        // }
-
-        // window.onpointermove = clearHoldEvents;
-        // window.onpointerup = clearHoldEvents;
-
         document.oncontextmenu = (ev) => {
             ev.preventDefault();
         };
