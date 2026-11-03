@@ -6,9 +6,21 @@ import * as Layout from "../env/Layout.js"
 
 export class PresetsGUI {
     static is_hold = false;
-    static preset_timeout_handler;
-    static selected_preset_element;
+    static hold_timeout_handler;
+    static selected_element;
     static selected_preset_name;
+    static children = [];
+
+    static clearHoldTimeout(element) {
+        if (element == this.selected_element) {
+            clearTimeout(this.hold_timeout_handler);
+            setTimeout(() => {
+                this.is_hold = false;
+            }, 10);
+        }
+    }
+
+    // static isOverSelected = () => this.selected_element ? this.selected_element.matches(":hover") : false;
 
     static addPresetNode(preset_name, on_click) {
         const preset = document.createElement("div");
@@ -29,12 +41,13 @@ export class PresetsGUI {
         }
 
         preset.onpointerdown = () => {
-            this.preset_timeout_handler = setTimeout(() => {
-                this.selected_preset_name = preset_name;
+            this.selected_element = preset; // used to handle on hold logic
+
+            this.hold_timeout_handler = setTimeout(() => {
+                this.selected_preset_name = preset_name; // used by PresetConfigGUI
                 PresetConfigGUI.update();
-                AnimationMgr.stop(this.selected_preset_element, "wiggle");
-                this.selected_preset_element = preset;
-                AnimationMgr.play(this.selected_preset_element, "wiggle"); // start wiggle animation since selected
+                this.children.map(child => AnimationMgr.stop(child, "wiggle"));
+                AnimationMgr.play(this.selected_element, "wiggle"); // start wiggle animation since selected
                 AppGUI.showGUI(Layout.config_preset);
                 AppGUI.hideGUI(Layout.tiles);
 
@@ -43,6 +56,20 @@ export class PresetsGUI {
                 this.is_hold = true;
             }, 500);
         }
+
+        preset.onpointerleave = () => {
+            this.clearHoldTimeout(preset);
+        }
+        
+        preset.onpointercancel = () => {
+            this.clearHoldTimeout(preset);
+        }
+        
+        preset.onpointerup = () => {
+            this.clearHoldTimeout(preset);
+        }
+
+        this.children.push(preset);
 
         return preset;
     }

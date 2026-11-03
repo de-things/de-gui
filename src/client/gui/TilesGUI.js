@@ -13,9 +13,21 @@ export class TilesGUI {
     static current_page = 0;
     static selected_tile_index = 0;
     static selected_tile; // html element of select tile
-    static selected_tile_element;
-    static tile_timeout_handler;
+    static selected_element;
+    static hold_timeout_handler;
     static is_hold = false;
+    static children = [];
+
+    static clearHoldTimeout(element) {
+        if (element == this.selected_element) {
+            clearTimeout(this.hold_timeout_handler);
+            setTimeout(() => {
+                this.is_hold = false;
+            }, 10);
+        }
+    }
+
+    // static isOverSelected = () => this.selected_element ? this.selected_element.matches(":hover") : false;
 
     static hasPrevPage(page_number) {
         return page_number > 0;
@@ -70,18 +82,33 @@ export class TilesGUI {
         }
 
         tile.onpointerdown = () => {
-                this.tile_timeout_handler = setTimeout(() => {
-                this.selected_tile_index = index;
+            this.selected_element = tile; // used to handle on hold logic
+
+            this.hold_timeout_handler = setTimeout(() => {
+                this.selected_tile_index = index; // used by TileConfigGUI to determine what info draw
                 TileConfigGUI.update();
-                AnimationMgr.stop(TilesGUI.selected_tile_element, "wiggle");
-                TilesGUI.selected_tile_element = tile;
-                AnimationMgr.play(TilesGUI.selected_tile_element, "wiggle"); // start wiggle animation since selected
+                this.children.map(child => AnimationMgr.stop(child, "wiggle"));
+                AnimationMgr.play(this.selected_element, "wiggle"); // start wiggle animation since selected
                 AppGUI.showGUI(Layout.config_tile);
                 AppGUI.hideGUI(Layout.config_app, Layout.logs, Layout.presets);
 
                 this.is_hold = true;
             }, 500);
         }
+
+        tile.onpointerleave = () => {
+            this.clearHoldTimeout(tile);
+        }
+        
+        tile.onpointercancel = () => {
+            this.clearHoldTimeout(tile);
+        }
+        
+        tile.onpointerup = () => {
+            this.clearHoldTimeout(tile);
+        }
+
+        this.children.push(tile);
 
         return tile;
     }
@@ -101,7 +128,7 @@ export class TilesGUI {
         }
 
         AppConfigGUI.update();
-        TilesGUI.drawPage();
+        this.drawPage();
     }
 
     static clearTiles() {
@@ -114,15 +141,15 @@ export class TilesGUI {
             return;
         }
 
-        let page_info = this.getPageInfo(TilesGUI.current_page);
+        let page_info = this.getPageInfo(this.current_page);
 
         if (page_info.start_index > PresetsMgr.selected_preset.tiles.length) {
-            TilesGUI.current_page--;
+            this.current_page--;
             this.drawPage();
             return;
         }
 
-        TilesGUI.clearTiles(); // clear old tiles gui
+        this.clearTiles(); // clear old tiles gui
 
         // btn to go to prev page of tiles
         let prev_tile_btn = document.createElement("div");
@@ -134,7 +161,7 @@ export class TilesGUI {
 
         prev_tile_btn.onclick = () => {
             if (page_info.prevPage) {
-                TilesGUI.current_page--;
+                this.current_page--;
                 this.drawPage();
             }
         }
@@ -156,7 +183,7 @@ export class TilesGUI {
 
                     PresetsMgr.selected_preset.tiles.push(json);
                     let tile_id = PresetsMgr.selected_preset.tiles.length - 1;
-                    TilesGUI.addTileNode(tile_id, json, () => {
+                    this.addTileNode(tile_id, json, () => {
                         DDVMgr.request(json.ip, json.secret, json.cmd).then(ddv_res => {
                             if (ddv_res) {
                                 LogsGUI.printResMessage(json.ip, ddv_res);
@@ -176,7 +203,7 @@ export class TilesGUI {
 
         for (let i = page_info.start_index; i < offset; i++) {
             const tile_data = PresetsMgr.selected_preset.tiles[i];
-            TilesGUI.addTileNode(i, tile_data, () => {
+            this.addTileNode(i, tile_data, () => {
                 DDVMgr.request(tile_data.ip, tile_data.secret, tile_data.cmd).then(ddv_res => {
                     if (ddv_res) {
                         LogsGUI.printResMessage(tile_data.ip, ddv_res);
@@ -195,7 +222,7 @@ export class TilesGUI {
 
         next_tile_btn.onclick = () => {
             if (page_info.nextPage) {
-                TilesGUI.current_page++;
+                this.current_page++;
                 this.drawPage();
             }
         }

@@ -83,7 +83,7 @@ export class PresetConfigGUI {
                     TilesGUI.clearTiles();
                 }
 
-                presets.removeChild(PresetsGUI.selected_preset_element);
+                presets.removeChild(PresetsGUI.selected_element);
                 PresetsGUI.selected_preset_name = null;
                 PresetsMgr.selected_preset = {};
 

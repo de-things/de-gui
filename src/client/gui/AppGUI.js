@@ -93,14 +93,14 @@ export class AppGUI {
             }
             if (elements[i] == Layout.config_tile) {
                 // stop wiggle animation since tile should be visually "disselected"
-                AnimationMgr.stop(TilesGUI.selected_tile_element, "wiggle");
-                TilesGUI.selected_tile_element = null;
+                TilesGUI.children.map(child => AnimationMgr.stop(child, "wiggle"));
+                TilesGUI.selected_element = null;
                 document.getElementById("area_A_navbar").style.display = "flex";
             }
             if (elements[i] == Layout.config_preset) {
                 // stop wiggle animation since preset should be visually "disselected"
-                AnimationMgr.stop(PresetsGUI.selected_preset_element, "wiggle");
-                PresetsGUI.selected_preset_element = null;
+                PresetsGUI.children.map(child => AnimationMgr.stop(child, "wiggle"));
+                PresetsGUI.selected_element = null;
                 document.getElementById("area_A_navbar").style.display = "flex";
             }
         }
