@@ -102,9 +102,5 @@ export class App {
         NavbarGUI.init();
 
         QRGUI.init();
-
-        document.oncontextmenu = (ev) => {
-            ev.preventDefault();
-        };
     }
 }
